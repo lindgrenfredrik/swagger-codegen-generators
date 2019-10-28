@@ -1066,7 +1066,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     public void addHandlebarHelpers(Handlebars handlebars) {
         super.addHandlebarHelpers(handlebars);
         handlebars.registerHelpers(new CsharpHelper());
-	handlebars.registerHelpers(ConditionalHelpers.class);
+        handlebars.registerHelpers(ConditionalHelpers.class);
     }
 
 /*
