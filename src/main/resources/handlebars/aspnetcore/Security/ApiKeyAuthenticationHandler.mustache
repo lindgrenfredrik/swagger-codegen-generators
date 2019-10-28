@@ -20,6 +20,9 @@ namespace {{packageName}}.Security
         /// </summary>
         public const string SchemeName = "ApiKey";
 
+        /// <summary>
+        /// Constructor comment to avoid compile warning
+        /// </summary>
         public ApiKeyAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
         {
         }
@@ -44,7 +47,7 @@ namespace {{packageName}}.Security
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
-            return AuthenticateResult.Success(ticket);
+            return await Task.FromResult(AuthenticateResult.Success(ticket));
         }
     }
 }

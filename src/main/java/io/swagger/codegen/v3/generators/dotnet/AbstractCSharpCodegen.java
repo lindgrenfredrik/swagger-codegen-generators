@@ -1,6 +1,7 @@
 package io.swagger.codegen.v3.generators.dotnet;
 
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.Lambda;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.v3.CodegenConstants;
@@ -1057,6 +1058,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     public void addHandlebarHelpers(Handlebars handlebars) {
         super.addHandlebarHelpers(handlebars);
         handlebars.registerHelpers(new CsharpHelper());
+	handlebars.registerHelpers(ConditionalHelpers.class);
     }
 
 /*

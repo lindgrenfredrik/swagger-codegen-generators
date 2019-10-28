@@ -40,6 +40,12 @@ namespace {{packageName}}.Controllers
         {{#isApiKey}}
         [Authorize(AuthenticationSchemes = ApiKeyAuthenticationHandler.SchemeName)]
         {{/isApiKey}}
+        {{#isOAuth}}
+        [Authorize(AuthenticationSchemes = "{{name}}")]
+        {{/isOAuth}}
+        {{#each scopes}}
+        [Authorize(Policy = "{{@key}}")]
+        {{/each}}
         {{/@first}}
         {{/authMethods}}
         [ValidateModelState]
