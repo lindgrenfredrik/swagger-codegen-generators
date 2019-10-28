@@ -14,6 +14,15 @@ using {{packageName}}.Filters;
 {{#hasAuthMethods}}using {{packageName}}.Security;{{/hasAuthMethods}}
 
 using Microsoft.AspNetCore.Authentication;
+{{#authMethods}}
+{{#isOAuth}}
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+{{/isOAuth}}
+{{/authMethods}}
 
 namespace {{packageName}}
 {
@@ -71,6 +80,46 @@ namespace {{packageName}}
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null);
 
             {{/isApiKey}}
+            {{#isOAuth}}
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer("{{name}}", options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = true;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                    {
+                        // For easier testing uncomment code below to circumvent validity check of token
+                        // Also need to add "using System.IdentityModel.Tokens.Jwt;"
+                        /*
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        SignatureValidator = delegate(string token, TokenValidationParameters parameters)
+                            {
+                                var jwt = new JwtSecurityToken(token);
+                                return jwt;
+                            },
+                        */
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SecureKey"))
+                    };
+            });
+            {{#each scopes}}
+            services.AddAuthorization(auth =>
+            {
+                auth.AddPolicy("{{@key}}", policyBuilder =>
+                    policyBuilder.RequireAssertion(async handler =>
+                        {
+                            var scopesClaim = handler.User.FindFirst("scope");
+                            var scopes = scopesClaim?.Value.Split(' ');
+                            var hasScope = scopes?.Where(scope => scope ==  "{{@key}}").Any() ?? false;
+                            return await Task.FromResult(hasScope);
+                        }));
+            });
+            {{/each}}
+            {{/isOAuth}}
             {{/authMethods}}
 
             services
