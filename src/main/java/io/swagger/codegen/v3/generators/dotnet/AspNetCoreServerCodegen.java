@@ -288,6 +288,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         boolean hasBasic = false;
         boolean hasBearer = false;
         boolean hasApiKey = false;
+        boolean hasOAuth = false;
         for (int index = 0; index < securities.size(); index++) {
             final CodegenSecurity codegenSecurity = securities.get(index);
             if (getBooleanValue(codegenSecurity, CodegenConstants.IS_BASIC_EXT_NAME)) {
@@ -299,6 +300,9 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             if (getBooleanValue(codegenSecurity, CodegenConstants.IS_API_KEY_EXT_NAME)) {
                 hasApiKey = true;
             }
+            if (getBooleanValue(codegenSecurity, CodegenConstants.IS_OAUTH_EXT_NAME)) {
+                hasOAuth = true;
+            }
         }
         final String packageFolder = sourceFolder + File.separator + packageName;
         if (hasBasic) {
@@ -309,6 +313,9 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         }
         if (hasApiKey) {
             supportingFiles.add(new SupportingFile("Security/ApiKeyAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "ApiKeyAuthenticationHandler.cs"));
+        }
+        if (hasOAuth) {
+            supportingFiles.add(new SupportingFile("Security/OAuthAuthenticationHandler.mustache", packageFolder + File.separator + "Security", "OAuthAuthenticationHandler.cs"));
         }
         return securities;
     }
