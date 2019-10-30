@@ -1,0 +1,79 @@
+{{#authMethods}}
+{{#isOAuth}}
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+{{/isOAuth}}
+{{/authMethods}}
+using Microsoft.Extensions.DependencyInjection;
+
+namespace {{packageName}}.Security
+{
+    /// <summary>
+    /// class to handle bearer authentication.
+    /// </summary>
+    public static class BearerAuthenticationHandlerServiceExtension
+    {
+        /// <summary>
+        /// Function to register the Authentications 
+        /// </summary>
+        public static void registerOAuthAuthentications(this IServiceCollection services)
+        {
+            {{#authMethods}}
+            {{#isOAuth}}
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer("{{name}}", options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = true;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                    {
+                        // For easier testing uncomment code below to circumvent validity check of token
+                        // Also need to add "using System.IdentityModel.Tokens.Jwt;"
+                        /*
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        SignatureValidator = delegate(string token, TokenValidationParameters parameters)
+                            {
+                                var jwt = new JwtSecurityToken(token);
+                                return jwt;
+                            },
+                        */
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SecureKey"))
+                    };
+            });
+            {{/isOAuth}}
+            {{/authMethods}}
+        }
+
+        /// <summary>
+        /// Function to register all Authentication policies used for Bearer authentication
+        /// </summary>
+        public static void registerOAuthAuthorizations(this IServiceCollection services)
+        {
+            {{#authMethods}}
+            {{#isOAuth}}
+            {{#each scopes}}
+            services.AddAuthorization(auth =>
+            {
+                auth.AddPolicy("{{@key}}", policyBuilder =>
+                    policyBuilder.RequireAssertion(async handler =>
+                        {
+                            var scopesClaim = handler.User.FindFirst("scope");
+                            var scopes = scopesClaim?.Value.Split(' ');
+                            var hasScope = scopes?.Where(scope => scope ==  "{{@key}}").Any() ?? false;
+                            return await Task.FromResult(hasScope);
+                        }));
+            });
+            {{/each}}
+            {{/isOAuth}}
+            {{/authMethods}}
+        }
+    }
+}

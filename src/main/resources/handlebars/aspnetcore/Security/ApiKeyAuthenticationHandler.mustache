@@ -34,7 +34,7 @@ namespace {{packageName}}.Security
         {
             if (!Request.Headers.ContainsKey("api_key"))
             {
-                return AuthenticateResult.Fail("Missing Authorization Header");
+                return await Task.FromResult(AuthenticateResult.Fail("Missing Authorization Header"));
             }
 
             // do magic here!
