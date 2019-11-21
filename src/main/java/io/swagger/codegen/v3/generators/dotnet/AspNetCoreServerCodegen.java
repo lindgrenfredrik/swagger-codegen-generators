@@ -2,13 +2,7 @@ package io.swagger.codegen.v3.generators.dotnet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.samskivert.mustache.Mustache;
-import io.swagger.codegen.v3.CodegenArgument;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenContent;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenSecurity;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.handlebars.ExtensionHelper;
 import io.swagger.codegen.v3.utils.URLPathUtil;
 import io.swagger.v3.core.util.Json;
@@ -20,14 +14,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static java.util.UUID.randomUUID;
+import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.BinarySchema;
 
 public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
 
@@ -351,6 +345,21 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         }
     }
 
+    @Override
+    public CodegenParameter fromRequestBody(RequestBody body, String name, Schema schema, Map<String, Schema> schemas, Set<String> imports) {
+        CodegenParameter param = super.fromRequestBody(body, name, schema, schemas, imports);
+        if (schema == null) {
+            schema = getSchemaFromBody(body);
+        }
+        if (schema instanceof BinarySchema) {
+            param.dataType = "IFormFile";
+            param.baseType = "IFormFile";
+            imports.add("IFormFile");
+            param.getVendorExtensions().put(CodegenConstants.IS_BINARY_EXT_NAME, Boolean.TRUE);
+            param.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, Boolean.TRUE);
+        }
+        return param;
+    }
 
     @Override
     public String getArgumentsLocation() {

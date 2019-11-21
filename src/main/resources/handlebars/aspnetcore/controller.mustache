@@ -15,7 +15,12 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using {{packageName}}.Attributes;
 {{#hasAuthMethods}}using {{packageName}}.Security;{{/hasAuthMethods}}
-using {{packageName}}.Models;
+{{#hasModel}}
+using {{modelPackage}};
+{{/hasModel}}
+{{#imports}}
+using {{import}};
+{{/imports}}
 
 namespace {{packageName}}.Controllers
 { {{#operations}}

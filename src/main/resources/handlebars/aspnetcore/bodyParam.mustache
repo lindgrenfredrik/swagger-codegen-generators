@@ -1,1 +1,1 @@
-{{#isBodyParam}}[FromBody]{{&dataType}} {{paramName}}{{/isBodyParam}}
+{{#isBodyParam}}{{#isFile}}{{&dataType}} {{/isFile}}{{^isFile}}[FromBody]{{&dataType}} {{/isFile}}{{paramName}}{{/isBodyParam}}
