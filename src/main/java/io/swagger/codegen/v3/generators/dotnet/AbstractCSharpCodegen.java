@@ -88,9 +88,9 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
 
         supportsInheritance = true;
 
-        // C# does not use import mapping
         importMapping.clear();
-
+        // Extra import is needed to support File upload type
+        importMapping.put("IFormFile", "Microsoft.AspNetCore.Http");
         outputFolder = "generated-code" + File.separator + this.getName();
 
         collectionTypes = new HashSet<String>(
