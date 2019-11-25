@@ -370,6 +370,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegenConfig {
     }
 
     @Override
+    public String toModelImport(String name) {
+        return modelPackage();
+    }
+
+    @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         super.postProcessModelProperty(model, property);
     }
